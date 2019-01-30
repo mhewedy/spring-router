@@ -3,10 +3,7 @@ package springrouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -24,29 +21,26 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
-public class RouterBeanPostProcessor implements BeanPostProcessor, ApplicationContextAware, InitializingBean {
+public class RouterBeanPostProcessor implements BeanPostProcessor {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
     @Nullable
-    private String modelBasePackage;
+    private String modelPackage;
 
     private final Resource routingResource;
-    private final String controllersBasePackage;
+    private final String controllerPackage;
 
-    @Nullable
-    private ApplicationContext applicationContext;
-
-    public RouterBeanPostProcessor(Resource routingResource, String controllersBasePackage) {
+    public RouterBeanPostProcessor(Resource routingResource, String controllerPackage) {
         Assert.notNull(routingResource, "'routingResource' cannot be null");
-        Assert.notNull(controllersBasePackage, "'controllersBasePackage' cannot be null");
+        Assert.notNull(controllerPackage, "'controllerPackage' cannot be null");
 
         this.routingResource = routingResource;
-        this.controllersBasePackage = controllersBasePackage;
+        this.controllerPackage = controllerPackage;
     }
 
-    public void setModelBasePackage(String modelBasePackage) {
-        this.modelBasePackage = modelBasePackage;
+    public void setModelPackage(String modelPackage) {
+        this.modelPackage = modelPackage;
     }
 
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
@@ -60,20 +54,6 @@ public class RouterBeanPostProcessor implements BeanPostProcessor, ApplicationCo
 
     private void registerMappings(RequestMappingHandlerMapping bean) {
         new RouteMapping(bean).register();
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (applicationContext != null) {
-            log.debug("register RequestResponseBodyMethodProcessorAdvisor");
-            applicationContext.getAutowireCapableBeanFactory()
-                    .createBean(RequestResponseBodyMethodProcessorAdvisor.class);
-        }
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 
     private class RouteMapping {
@@ -197,14 +177,14 @@ public class RouterBeanPostProcessor implements BeanPostProcessor, ApplicationCo
             }
             if (appendControllerPackage) {
                 try {
-                    return ClassUtils.forName(controllersBasePackage + "." + className, getClass().getClassLoader());
+                    return ClassUtils.forName(controllerPackage + "." + className, getClass().getClassLoader());
                 } catch (Exception ex) {
                     // ignore
                 }
             }
-            if (appendModelPackage && modelBasePackage != null) {
+            if (appendModelPackage && modelPackage != null) {
                 try {
-                    return ClassUtils.forName(modelBasePackage + "." + className, getClass().getClassLoader());
+                    return ClassUtils.forName(modelPackage + "." + className, getClass().getClassLoader());
                 } catch (Exception ex) {
                     // ignore
                 }

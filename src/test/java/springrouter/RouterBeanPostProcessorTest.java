@@ -33,7 +33,7 @@ public class RouterBeanPostProcessorTest {
         RouterBeanPostProcessor routerBeanPostProcessor() {
             RouterBeanPostProcessor processor = new RouterBeanPostProcessor(new ClassPathResource("route1.txt"),
                     "springrouter.controllers");
-            processor.setModelBasePackage("springrouter.model");        // optional
+            processor.setModelPackage("springrouter.model");        // optional
             return processor;
         }
 
