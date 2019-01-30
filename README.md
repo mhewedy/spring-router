@@ -1,9 +1,11 @@
-Allow put HTTP mapping in external text file (rails/play like approach).
+# Spring Router
 
-The file looks like:
+Allow write HTTP mapping in external text file (rails/play like approach).
+
+The file looks like (any file name and extension):
 
 ```
-# comment
+# this is my router file
 
 GET		/users					UserController#list
 GET		/users/{id}				UserController#get(Long)
@@ -15,8 +17,9 @@ You can need to define one Bean (BPP):
 
 ```
 @Bean
-RouterBeanPostProcessor routerBeanPostProcessor() {
-    return new RouterBeanPostProcessor(new ClassPathResource("route1.txt"), "controllers");
+public RouterBeanPostProcessor routerBeanPostProcessor() {
+    return new RouterBeanPostProcessor(new ClassPathResource("route1.txt"),
+        "controllers");
 }
 ```
 
