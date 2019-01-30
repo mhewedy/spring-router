@@ -42,9 +42,4 @@ public class RouterConfiguration implements ImportAware {
         }
         return routerBeanPostProcessor;
     }
-
-    @Bean
-    public ResponseBodyBeanPostProcessor responseBodyBeanPostProcessor() {
-        return new ResponseBodyBeanPostProcessor();
-    }
 }
