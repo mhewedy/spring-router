@@ -1,0 +1,5 @@
+# comment
+
+GET		/users					UserController#list
+GET		/users/{id}				UserController#get(Long)
+PUT		/users/{id}				UserController#update(Long, User)
