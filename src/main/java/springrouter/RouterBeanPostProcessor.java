@@ -3,8 +3,12 @@ package springrouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -20,13 +24,18 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
-public class RouterBeanPostProcessor implements BeanPostProcessor {
+public class RouterBeanPostProcessor implements BeanPostProcessor, ApplicationContextAware, InitializingBean {
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
+    @Nullable
+    private String modelBasePackage;
+
     private final Resource routingResource;
     private final String controllersBasePackage;
-    private String modelBasePackage;
+
+    @Nullable
+    private ApplicationContext applicationContext;
 
     public RouterBeanPostProcessor(Resource routingResource, String controllersBasePackage) {
         Assert.notNull(routingResource, "'routingResource' cannot be null");
@@ -51,6 +60,20 @@ public class RouterBeanPostProcessor implements BeanPostProcessor {
 
     private void registerMappings(RequestMappingHandlerMapping bean) {
         new RouteMapping(bean).register();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (applicationContext != null) {
+            log.debug("register RequestResponseBodyMethodProcessorAdvisor");
+            applicationContext.getAutowireCapableBeanFactory()
+                    .createBean(RequestResponseBodyMethodProcessorAdvisor.class);
+        }
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     private class RouteMapping {
