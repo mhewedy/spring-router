@@ -5,22 +5,31 @@ Allow write HTTP mapping in external text file (rails/play like approach).
 The file looks like (any file name and extension):
 
 ```
-# this is my router file
+# The example from https://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing
+# see https://github.com/mhewedy/spring-router
 
-GET		/users					UserController#list
-GET		/users/{id}				UserController#get(Long)
-PUT		/users/{id}				UserController#update(Long, User)
+
+GET             /admin/articles	                    ArticleController#index
+POST            /admin/articles	                    ArticleController#create(Article)
+GET             /admin/articles/{id}	            ArticleController#show(Long)
+PUT             /admin/articles/{id}	            ArticleController#update(Long, Article)
+DELETE          /admin/articles/{id}	            ArticleController#destroy(Long)
+
+
 
 ```
 
-You can need to define one Bean (BPP):
+You need to configure `@EnableRouter` annotation
 
-```
-@Bean
-public RouterBeanPostProcessor routerBeanPostProcessor() {
-    return new RouterBeanPostProcessor(new ClassPathResource("route1.txt"),
-        "controllers");
+```java
+@EnableRouter(controllerPackage = "com.example.demo.controllers")
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+
 }
 ```
 
-see the test cases for complete example. 
+See https://github.com/mhewedy/spring-router-example
