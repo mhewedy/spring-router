@@ -2,7 +2,7 @@
 
 Allow write HTTP mapping in external text file (rails/play like approach).
 
-The file looks like (any file name and extension):
+The file looks like (any file name and extension, by default it is `router.txt` at the root of classpath):
 
 ```
 # The example from https://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing
