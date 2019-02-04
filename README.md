@@ -23,11 +23,7 @@ You need to configure `@EnableRouter` annotation
 
 ```java
 @EnableRouter(controllerPackage = "com.example.demo.controllers")
-public class DemoApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
-    }
+public class MyConfig {
 
 }
 ```
