@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -46,14 +47,10 @@ public class RouterBeanPostProcessor implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
         if (bean.getClass().isAssignableFrom(RequestMappingHandlerMapping.class)) {
-            registerMappings((RequestMappingHandlerMapping) bean);
+            new RouteMapping((RequestMappingHandlerMapping) bean).register();
         }
 
         return bean;
-    }
-
-    private void registerMappings(RequestMappingHandlerMapping bean) {
-        new RouteMapping(bean).register();
     }
 
     private class RouteMapping {
@@ -75,22 +72,18 @@ public class RouterBeanPostProcessor implements BeanPostProcessor {
         }
 
         private String readRoutes() {
-            try {
+            try (InputStream routingStream = routingResource.getInputStream()) {
                 log.info("loading routes from: {}", routingResource.getURI());
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                StreamUtils.copy(routingResource.getInputStream(), outputStream);
-                return outputStream.toString("utf8");
+                return StreamUtils.copyToString(routingStream, Charset.forName("utf8"));
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         }
 
         private Holder parse(String lineString) {
-
             if (lineString.trim().startsWith("#")) {// is a comment line
                 return null;
             }
-
             if (lineString.trim().length() == 0) {// is empty line
                 return null;
             }
